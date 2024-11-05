@@ -47,6 +47,14 @@ class SQL : private only_movable {
    */
   explicit SQL(const std::string& query, bool use_cache = false);
 
+  /**
+   * @brief Instantiate an instance of the class with a KQL query.
+   *
+   * @param query A KQL query.
+   * @param use_cache [optional] Set true to use the query cache.
+   */
+  explicit SQL(const std::string& query, bool use_cache, bool is_kql);
+
   /// Allow moving.
   SQL(SQL&&) noexcept = default;
 
@@ -186,6 +194,20 @@ Status query(const std::string& query,
              bool use_cache = false);
 
 /**
+ * @brief Execute a KQL query.
+ *
+ * This is a lower-level version of osquery::SQL. Prefer to use osquery::SQL.
+ *
+ * @param query the KQL query to execute
+ * @param results [output] A QueryData structure to emit result rows on success.
+ * @param use_cache [optional] Set true to use the query cache.
+ * @return A status indicating query success.
+ */
+Status kqlQuery(const std::string& query,
+                QueryData& results,
+                bool use_cache = false);
+
+/**
  * @brief Analyze a query, providing information about the result columns.
  *
  * This function asks SQLite to determine what the names and types are of the
@@ -201,6 +223,21 @@ Status query(const std::string& query,
 Status getQueryColumns(const std::string& q, TableColumns& columns);
 
 /**
+ * @brief Analyze a KQL query, providing information about the result columns.
+ *
+ * This function asks the KQL implementation to determine what the names and
+ * types are of the result columns of the provided query. Only table columns
+ * (not expressions or subqueries) can have their types determined. Types that
+ * are not determined are indicated with the string "UNKNOWN".
+ *
+ * @param q the KQL query to analyze.
+ * @param columns the vector to fill with column information.
+ *
+ * @return status indicating success or failure of the operation.
+ */
+Status getKQLQueryColumns(const std::string& q, TableColumns& columns);
+
+/**
  * @brief Extract table names from an input query.
  *
  * This should return the scanned virtual tables, not aliases or intermediate
@@ -212,4 +249,18 @@ Status getQueryColumns(const std::string& q, TableColumns& columns);
  * @return status indicating success or failure of the operation.
  */
 Status getQueryTables(const std::string& q, std::vector<std::string>& tables);
+
+/**
+ * @brief Extract table names from an input KQL query.
+ *
+ * This should return the scanned virtual tables, not aliases or intermediate
+ * tables, from a given KQL query.
+ *
+ * @param q the KQL query to analyze.
+ * @param tables the output vector to fill with table names.
+ *
+ * @return status indicating success or failure of the operation.
+ */
+Status getKQLQueryTables(const std::string& q, std::vector<std::string>& tables);
+
 } // namespace osquery

@@ -16,14 +16,15 @@
 #include <osquery/sql/sql.h>
 
 #include <osquery/core/plugins/sql.h>
+#include <osquery/core/plugins/kql.h>
 
 #include <osquery/utils/conversions/split.h>
 #include <osquery/utils/info/tool_type.h>
 
 namespace osquery {
 
-
 CREATE_LAZY_REGISTRY(SQLPlugin, "sql");
+CREATE_LAZY_REGISTRY(KQLPlugin, "kql");
 
 SQL::SQL(const std::string& query, bool use_cache) {
   TableColumns table_columns;
@@ -33,6 +34,25 @@ SQL::SQL(const std::string& query, bool use_cache) {
       columns_.push_back(std::get<0>(c));
     }
     status_ = osquery::query(query, results_, use_cache);
+  }
+}
+
+SQL::SQL(const std::string& query, bool use_cache, bool is_kql) {
+  TableColumns table_columns;
+  if (is_kql) {
+    status_ = getKQLQueryColumns(query, table_columns);
+  } else {
+    status_ = getQueryColumns(query, table_columns);
+  }
+  if (status_.ok()) {
+    for (auto c : table_columns) {
+      columns_.push_back(std::get<0>(c));
+    }
+    if (is_kql) {
+      status_ = osquery::kqlQuery(query, results_, use_cache);
+    } else {
+      status_ = osquery::query(query, results_, use_cache);
+    }
   }
 }
 
@@ -181,10 +201,31 @@ Status query(const std::string& q, QueryData& results, bool use_cache) {
       results);
 }
 
+Status kqlQuery(const std::string& q, QueryData& results, bool use_cache) {
+  return Registry::call(
+      "kql",
+      "kql",
+      {{"action", "query"}, {"cache", (use_cache) ? "1" : "0"}, {"query", q}},
+      results);
+}
+
 Status getQueryColumns(const std::string& q, TableColumns& columns) {
   PluginResponse response;
   auto status = Registry::call(
       "sql", "sql", {{"action", "columns"}, {"query", q}}, response);
+
+  // Convert response to columns
+  for (const auto& item : response) {
+    columns.push_back(make_tuple(
+        item.at("n"), columnTypeName(item.at("t")), ColumnOptions::DEFAULT));
+  }
+  return status;
+}
+
+Status getKQLQueryColumns(const std::string& q, TableColumns& columns) {
+  PluginResponse response;
+  auto status = Registry::call(
+      "kql", "kql", {{"action", "columns"}, {"query", q}}, response);
 
   // Convert response to columns
   for (const auto& item : response) {
@@ -224,4 +265,16 @@ Status getQueryTables(const std::string& q, std::vector<std::string>& tables) {
   }
   return status;
 }
+
+Status getKQLQueryTables(const std::string& q, std::vector<std::string>& tables) {
+  PluginResponse response;
+  auto status = Registry::call(
+      "kql", "kql", {{"action", "tables"}, {"query", q}}, response);
+
+  for (const auto& table : response) {
+    tables.push_back(table.at("t"));
+  }
+  return status;
 }
+
+} // namespace osquery
