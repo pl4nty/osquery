@@ -24,6 +24,7 @@
             Wait='no'/>
     </CPackWiXFragment>
     <CPackWiXFragment Id="#PRODUCT">
+        <Property Id="ALLUSERS" Value="1" />
         <PropertyRef Id="WIX_ACCOUNT_LOCALSYSTEM" />
         <PropertyRef Id="WIX_ACCOUNT_USERS" />
         <PropertyRef Id="WIX_ACCOUNT_ADMINISTRATORS" />

@@ -177,6 +177,8 @@ $wix +=
       InstallerVersion='200'
       Platform='x64'
       Languages='1033'
+      InstallScope='perMachine'
+      InstallPrivileges='elevated'
       Compressed='yes'
       SummaryCodepage='1252' />
 
