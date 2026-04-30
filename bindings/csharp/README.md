@@ -94,20 +94,27 @@ If you don't specify `[OsqueryColumn]`, property names are automatically convert
 
 ## Available Table Models
 
-The library includes **auto-generated** models for all 287 osquery tables, generated from the `.table` spec files in the osquery source. Every table supports full LINQ querying out of the box.
+The library includes **auto-generated** models for all 286 osquery tables, generated from the upstream osquery JSON schema. Every table supports full LINQ querying out of the box.
 
 To regenerate the table models after updating osquery specs:
 
 ```bash
 cd bindings/csharp
-python3 generate_tables.py --specs ../../specs --output Osquery.CSharp/Tables
+
+# 1. Regenerate the JSON schema from .table specs (requires Python 3)
+python3 ../../tools/codegen/genwebsitejson.py --specs=../../specs > schema.json
+
+# 2. Run the .NET code generator
+dotnet run --project Osquery.CodeGen -- schema.json Osquery.CSharp/Tables
 ```
 
 You can also generate models for specific tables only:
 
 ```bash
-python3 generate_tables.py --specs ../../specs --output Osquery.CSharp/Tables --tables processes users os_version
+dotnet run --project Osquery.CodeGen -- schema.json Osquery.CSharp/Tables processes users os_version
 ```
+
+The code generator uses [Scriban](https://github.com/scriban/scriban) templates (`Osquery.CodeGen/Templates/TableModel.sbn`) to produce the C# classes, making it easy to customize the output format.
 
 ## Requirements
 
