@@ -94,13 +94,20 @@ If you don't specify `[OsqueryColumn]`, property names are automatically convert
 
 ## Available Table Models
 
-The library includes pre-built models for common osquery tables:
+The library includes **auto-generated** models for all 287 osquery tables, generated from the `.table` spec files in the osquery source. Every table supports full LINQ querying out of the box.
 
-- `Process` — processes table
-- `User` — users table
-- `OsVersion` — os_version table
-- `ListeningPort` — listening_ports table
-- `InterfaceAddress` — interface_addresses table
+To regenerate the table models after updating osquery specs:
+
+```bash
+cd bindings/csharp
+python3 generate_tables.py --specs ../../specs --output Osquery.CSharp/Tables
+```
+
+You can also generate models for specific tables only:
+
+```bash
+python3 generate_tables.py --specs ../../specs --output Osquery.CSharp/Tables --tables processes users os_version
+```
 
 ## Requirements
 
