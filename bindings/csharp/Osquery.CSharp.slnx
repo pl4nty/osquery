@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Osquery.CSharp.Tests/Osquery.CSharp.Tests.csproj" />
+  <Project Path="Osquery.CSharp/Osquery.CSharp.csproj" />
+</Solution>

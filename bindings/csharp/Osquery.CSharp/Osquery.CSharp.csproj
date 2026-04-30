@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Osquery</RootNamespace>
+    <PackageId>Osquery.CSharp</PackageId>
+    <Description>C# bindings for osquery with LINQ support</Description>
+    <Authors>The osquery authors</Authors>
+    <PackageLicenseExpression>Apache-2.0 OR GPL-2.0-only</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Osquery.CSharp.Tests" />
+  </ItemGroup>
+
+</Project>
